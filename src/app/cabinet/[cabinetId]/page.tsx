@@ -19,13 +19,13 @@ import { LoadingScreen } from "@/components/ui/Spinner";
 const TOPIC_THEMES = [
   {
     card: "gradient-bloody text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
     soft: "text-white/75",
   },
   {
     card: "gradient-sweet text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
     soft: "text-white/75",
   },
@@ -37,7 +37,7 @@ const TOPIC_THEMES = [
   },
   {
     card: "gradient-quepal text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
     soft: "text-white/75",
   },
@@ -49,13 +49,13 @@ const TOPIC_THEMES = [
   },
   {
     card: "gradient-bloody text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
     soft: "text-white/75",
   },
   {
     card: "gradient-sweet text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
     soft: "text-white/75",
   },
@@ -173,8 +173,9 @@ export default function CabinetPage() {
               </div>
             </div>
             <Button
+              variant="surface"
               onClick={() => setModalOpen(true)}
-              className="bg-white/80 text-ink-900 hover:bg-white lg:col-span-2 lg:w-fit"
+              className="lg:col-span-2 lg:w-fit"
             >
               ＋ Жаңа тақырып ашу
             </Button>
@@ -272,9 +273,9 @@ function TopicCard({
       <div className="mt-auto flex flex-wrap gap-2 pt-4">
         <Link href={`/cabinet/${cabinetId}/topic/${topic.id}/edit`} className="flex-1">
           <Button
-            variant="secondary"
+            variant="surface"
             size="sm"
-            className="w-full border-white/40 bg-white/90 text-ink-900 hover:bg-white"
+            className="w-full"
           >
             Сөз қосу
           </Button>
@@ -288,8 +289,9 @@ function TopicCard({
           }}
         >
           <Button
+            variant="surface"
             size="sm"
-            className="w-full border border-white/50 bg-white/70 text-ink-900 shadow-card hover:bg-white"
+            className="w-full"
             disabled={!isReady}
           >
             Дайындық бөлмесі

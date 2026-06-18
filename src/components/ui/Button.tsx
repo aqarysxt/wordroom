@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "surface";
 type Size = "sm" | "md" | "lg";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +16,8 @@ const variants: Record<Variant, string> = {
     "gradient-bloody text-white shadow-soft hover:brightness-105 focus-visible:ring-brand-200",
   secondary:
     "border border-white/80 bg-white/90 text-brand-700 shadow-card hover:bg-brand-50 focus-visible:ring-brand-100",
+  surface:
+    "border border-white/80 bg-white text-ink-900 shadow-card hover:bg-brand-50 focus-visible:ring-brand-100",
   ghost: "bg-white/0 text-ink-500 hover:bg-white/70 hover:text-ink-900 focus-visible:ring-slate-200",
   danger: "gradient-celestial text-white shadow-soft hover:brightness-105 focus-visible:ring-red-200",
 };

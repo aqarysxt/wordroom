@@ -24,12 +24,12 @@ const TUTORIAL_STEPS = [
 const CABINET_THEMES = [
   {
     card: "gradient-bloody text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
   },
   {
     card: "gradient-sweet text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
   },
   {
@@ -39,7 +39,7 @@ const CABINET_THEMES = [
   },
   {
     card: "gradient-quepal text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
   },
   {
@@ -49,12 +49,12 @@ const CABINET_THEMES = [
   },
   {
     card: "gradient-bloody text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
   },
   {
     card: "gradient-sweet text-white",
-    chip: "bg-white/20 text-white",
+    chip: "bg-white/85 text-ink-900",
     muted: "text-white/80",
   },
 ];
@@ -153,11 +153,11 @@ export default function DashboardPage() {
                   {user.full_name}
                 </h1>
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-3xl bg-white/70 p-4 backdrop-blur">
+                  <div className="rounded-3xl bg-white/70 p-4 text-ink-900 backdrop-blur">
                     <p className="text-2xl font-black">{cabinets.length}</p>
                     <p className="mt-1 text-xs font-semibold text-ink-500">Кабинет</p>
                   </div>
-                  <div className="rounded-3xl bg-white/70 p-4 backdrop-blur">
+                  <div className="rounded-3xl bg-white/70 p-4 text-ink-900 backdrop-blur">
                     <p className="text-2xl font-black">4</p>
                     <p className="mt-1 text-xs font-semibold text-ink-500">Режим</p>
                   </div>
