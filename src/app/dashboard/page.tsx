@@ -137,6 +137,10 @@ export default function DashboardPage() {
     }
   }
 
+  function scrollToPanel(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   if (!user) return <LoadingScreen />;
 
   return (
@@ -146,35 +150,75 @@ export default function DashboardPage() {
       <main className="app-shell">
         <section className="mb-8 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="gradient-hero animate-fade-up overflow-hidden rounded-4xl p-6 text-white shadow-glow sm:p-8">
-            <div className="grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-center">
+            <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
               <div>
                 <p className="text-sm font-semibold text-white/70">Қайырлы күн,</p>
                 <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">
                   {user.full_name}
                 </h1>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-3xl bg-white/70 p-4 text-ink-900 backdrop-blur">
-                    <p className="text-2xl font-black">{cabinets.length}</p>
-                    <p className="mt-1 text-xs font-semibold text-ink-500">Кабинет</p>
-                  </div>
-                  <div className="rounded-3xl bg-white/70 p-4 text-ink-900 backdrop-blur">
-                    <p className="text-2xl font-black">4</p>
-                    <p className="mt-1 text-xs font-semibold text-ink-500">Режим</p>
-                  </div>
-                  <div className="rounded-3xl bg-white/90 p-4 text-ink-900">
-                    <p className="text-2xl font-black">PIN</p>
-                    <p className="mt-1 text-xs font-semibold text-ink-700">4 сан</p>
-                  </div>
-                </div>
+                <p className="mt-3 max-w-sm text-sm font-semibold leading-6 text-white/75">
+                  Кабинетті таңдаңыз немесе жаңа сөздік бөлмесін ашыңыз.
+                </p>
               </div>
-              <div className="hidden lg:block">
-                <div className="stack-preview scale-90">
-                  <span className="stack-layer" />
-                  <span className="stack-layer" />
-                  <span className="stack-layer" />
-                  <span className="stack-layer" />
-                  <span className="stack-layer" />
+
+              <div className="rounded-[2rem] bg-white/20 p-3 backdrop-blur">
+                <div className="mb-3 flex items-center justify-between gap-3 px-1">
+                  <p className="text-sm font-bold text-white">Кабинеттер</p>
+                  <span className="rounded-full bg-white/85 px-3 py-1 text-xs font-black text-ink-900">
+                    {loading ? "..." : cabinets.length}
+                  </span>
                 </div>
+                {loading ? (
+                  <div className="rounded-3xl bg-white/90 p-4 text-ink-900">
+                    <p className="text-sm font-bold">Кабинеттер жүктеліп жатыр...</p>
+                    <p className="mt-1 text-xs font-semibold text-ink-500">Бір сәт күтіңіз.</p>
+                  </div>
+                ) : cabinets.length > 0 ? (
+                  <div className="space-y-2">
+                    {cabinets.slice(0, 3).map((cabinet) => (
+                      <Link
+                        key={cabinet.id}
+                        href={`/cabinet/${cabinet.id}`}
+                        className="group flex items-center justify-between gap-3 rounded-3xl bg-white/90 p-3 text-ink-900 shadow-card transition hover:-translate-y-0.5 hover:bg-white"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black">{cabinet.name}</p>
+                          <p className="mt-0.5 font-mono text-xs font-bold tracking-widest text-ink-500">
+                            {cabinet.code}
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-2xl bg-ink-900 px-3 py-2 text-xs font-black text-white transition group-hover:bg-brand-600">
+                          Кіру
+                        </span>
+                      </Link>
+                    ))}
+                    {cabinets.length > 3 && (
+                      <p className="px-2 pt-1 text-xs font-bold text-white/75">
+                        Тағы {cabinets.length - 3} кабинет төменде көрсетілген.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-3xl bg-white/90 p-4 text-ink-900 shadow-card">
+                    <p className="text-sm font-black">Әзірге кабинет жоқ</p>
+                    <p className="mt-1 text-xs font-semibold leading-5 text-ink-500">
+                      Жаңа кабинет ашыңыз немесе код арқылы дайын кабинетке кіріңіз.
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <Button type="button" size="sm" onClick={() => scrollToPanel("create-cabinet")}>
+                        Ашу
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="surface"
+                        size="sm"
+                        onClick={() => scrollToPanel("join-cabinet")}
+                      >
+                        Кіру
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -212,7 +256,7 @@ export default function DashboardPage() {
         </section>
 
         <div className="mb-10 grid gap-4 lg:grid-cols-2">
-          <Card className="interactive-card animate-fade-up overflow-hidden p-6">
+          <Card id="create-cabinet" className="interactive-card animate-fade-up scroll-mt-24 overflow-hidden p-6">
             <div className="mb-5 h-1.5 rounded-full gradient-quepal" />
             <h2 className="mb-1 text-base font-bold text-ink-900">Жаңа кабинет ашу</h2>
             <p className="mb-4 text-sm text-ink-500">Өзіңіздің сөздік кабинетіңізді құрыңыз.</p>
@@ -230,7 +274,11 @@ export default function DashboardPage() {
             </form>
           </Card>
 
-          <Card className="interactive-card animate-fade-up overflow-hidden p-6" style={{ animationDelay: "80ms" }}>
+          <Card
+            id="join-cabinet"
+            className="interactive-card animate-fade-up scroll-mt-24 overflow-hidden p-6"
+            style={{ animationDelay: "80ms" }}
+          >
             <div className="mb-5 h-1.5 rounded-full gradient-orbit" />
             <h2 className="mb-1 text-base font-bold text-ink-900">Кабинетке кіру</h2>
             <p className="mb-4 text-sm text-ink-500">Сізге берілген 6 таңбалы кодты енгізіңіз.</p>
