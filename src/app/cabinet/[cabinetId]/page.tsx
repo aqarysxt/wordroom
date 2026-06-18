@@ -161,6 +161,9 @@ export default function CabinetPage() {
                 {cabinet.code}
               </span>
               <CopyButton value={cabinet.code} />
+                <span className="rounded-full bg-white/85 px-4 py-2 text-sm font-black text-ink-900">
+                  {cabinet.member_count ?? 0} адам
+                </span>
               </div>
             </div>
             <div className="hidden lg:block">

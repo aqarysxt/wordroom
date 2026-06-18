@@ -186,6 +186,9 @@ export default function DashboardPage() {
                           <p className="mt-0.5 font-mono text-xs font-bold tracking-widest text-ink-500">
                             {cabinet.code}
                           </p>
+                          <p className="mt-1 text-xs font-bold text-ink-500">
+                            {cabinet.member_count ?? 0} адам
+                          </p>
                         </div>
                         <span className="shrink-0 rounded-2xl bg-ink-900 px-3 py-2 text-xs font-black text-white transition group-hover:bg-brand-600">
                           Кіру
@@ -338,7 +341,9 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <h3 className="mt-8 text-2xl font-black tracking-tight">{cabinet.name}</h3>
-                    <p className={`mt-2 text-sm font-semibold ${theme.muted}`}>Кабинетке өту →</p>
+                    <p className={`mt-2 text-sm font-semibold ${theme.muted}`}>
+                      {cabinet.member_count ?? 0} адам · Кабинетке өту →
+                    </p>
                   </article>
                 </Link>
                 );

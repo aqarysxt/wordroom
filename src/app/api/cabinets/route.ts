@@ -28,7 +28,19 @@ export async function GET(req: Request) {
       .flatMap((row) => (Array.isArray(row.cabinets) ? row.cabinets : row.cabinets ? [row.cabinets] : []))
       .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 
-    return NextResponse.json({ cabinets });
+    const cabinetsWithCounts = await Promise.all(
+      cabinets.map(async (cabinet) => {
+        const { count, error: countError } = await supabase
+          .from("cabinet_members")
+          .select("*", { count: "exact", head: true })
+          .eq("cabinet_id", cabinet.id);
+
+        if (countError) throw countError;
+        return { ...cabinet, member_count: count ?? 0 };
+      }),
+    );
+
+    return NextResponse.json({ cabinets: cabinetsWithCounts });
   } catch (err) {
     console.error("GET /api/cabinets", err);
     return NextResponse.json({ error: "Кабинеттерді жүктеу мүмкін болмады." }, { status: 500 });
@@ -77,7 +89,7 @@ export async function POST(req: Request) {
 
     if (memberError) throw memberError;
 
-    return NextResponse.json({ cabinet }, { status: 201 });
+    return NextResponse.json({ cabinet: { ...cabinet, member_count: 1 } }, { status: 201 });
   } catch (err) {
     console.error("POST /api/cabinets", err);
     return NextResponse.json({ error: "Кабинет құру мүмкін болмады." }, { status: 500 });
