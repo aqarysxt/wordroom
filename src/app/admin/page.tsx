@@ -81,6 +81,18 @@ interface AdminOverview {
   recentPractice: AdminPractice[];
 }
 
+interface CleanupPreview {
+  deletable_count: number;
+  kept_count: number;
+  owner_count: number;
+  admin_kept_count: number;
+  deletable_users: Array<{
+    id: string;
+    full_name: string;
+    created_at: string;
+  }>;
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("kk-KZ", {
     dateStyle: "medium",
@@ -139,10 +151,13 @@ export default function AdminPage() {
   const [accessCode, setAccessCode] = useState("");
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [loading, setLoading] = useState(false);
+  const [cleanupLoading, setCleanupLoading] = useState(false);
+  const [cleanupConfirm, setCleanupConfirm] = useState("");
+  const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(null);
+  const [cleanupMessage, setCleanupMessage] = useState("");
   const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function loadOverview() {
     setError("");
     setLoading(true);
     try {
@@ -159,6 +174,59 @@ export default function AdminPage() {
       setOverview(null);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await loadOverview();
+  }
+
+  async function handleCleanupPreview() {
+    setCleanupMessage("");
+    setError("");
+    setCleanupLoading(true);
+    try {
+      const response = await fetch("/api/admin/users/cleanup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessCode: accessCode.trim(), action: "preview" }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Cleanup preview жүктелмеді.");
+      setCleanupPreview(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cleanup preview жүктелмеді.");
+      setCleanupPreview(null);
+    } finally {
+      setCleanupLoading(false);
+    }
+  }
+
+  async function handleCleanupDelete() {
+    setCleanupMessage("");
+    setError("");
+    setCleanupLoading(true);
+    try {
+      const response = await fetch("/api/admin/users/cleanup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accessCode: accessCode.trim(),
+          action: "delete",
+          confirmText: cleanupConfirm.trim(),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "User cleanup орындалмады.");
+      setCleanupMessage(`${data.deleted_count ?? 0} user тазаланды.`);
+      setCleanupConfirm("");
+      setCleanupPreview(null);
+      await loadOverview();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "User cleanup орындалмады.");
+    } finally {
+      setCleanupLoading(false);
     }
   }
 
@@ -206,6 +274,76 @@ export default function AdminPage() {
               <StatCard label="Words" value={overview.stats.word_count} />
               <StatCard label="Practice" value={overview.stats.practice_count} />
             </div>
+
+            <Card className="overflow-hidden p-5">
+              <div className="grid gap-4 lg:grid-cols-[1fr_0.85fr] lg:items-start">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-coral-600">
+                    User cleanup
+                  </p>
+                  <h2 className="mt-1 text-xl font-black text-ink-900">User-лерді тазалау</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-ink-500">
+                    Кабинет owner-лері және admin user сақталады. Қалған user-лер өшіріледі;
+                    олардың membership және practice нәтижелері cascade арқылы тазаланады.
+                  </p>
+                </div>
+                <div className="rounded-3xl bg-slate-50 p-4">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Button
+                      type="button"
+                      variant="surface"
+                      onClick={handleCleanupPreview}
+                      loading={cleanupLoading}
+                    >
+                      Тексеру
+                    </Button>
+                    <Input
+                      label="Растау сөзі"
+                      name="cleanupConfirm"
+                      placeholder="ТАЗАЛАУ"
+                      value={cleanupConfirm}
+                      onChange={(e) => setCleanupConfirm(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    className="mt-3 w-full"
+                    onClick={handleCleanupDelete}
+                    loading={cleanupLoading}
+                    disabled={cleanupConfirm.trim() !== "ТАЗАЛАУ"}
+                  >
+                    User-лерді тазалау
+                  </Button>
+                  {cleanupMessage && (
+                    <Alert tone="success" className="mt-3">
+                      {cleanupMessage}
+                    </Alert>
+                  )}
+                </div>
+              </div>
+              {cleanupPreview && (
+                <div className="mt-4 rounded-3xl border border-coral-500/20 bg-coral-50 p-4">
+                  <p className="text-sm font-black text-coral-600">
+                    Өшірілетін user: {cleanupPreview.deletable_count}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-coral-600/80">
+                    Сақталатын user: {cleanupPreview.kept_count}; owner: {cleanupPreview.owner_count};
+                    admin: {cleanupPreview.admin_kept_count}.
+                  </p>
+                  {cleanupPreview.deletable_users.length > 0 && (
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {cleanupPreview.deletable_users.slice(0, 6).map((user) => (
+                        <div key={user.id} className="rounded-2xl bg-white/80 px-3 py-2">
+                          <p className="truncate text-sm font-bold text-ink-900">{user.full_name}</p>
+                          <p className="mt-0.5 font-mono text-xs text-ink-400">{user.id.slice(0, 8)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
 
             <DataSection title="Users" count={overview.users.length}>
               <table className="min-w-full divide-y divide-slate-100">
