@@ -142,7 +142,7 @@ export default function LandingPage() {
           </Button>
 
           <p className="text-center text-xs text-slate-400">
-            Email қажет емес — аты-жөніңіз және 4 сандық код жеткілікті.
+            Сол аты-жөніңіз бен 4 сандық кодты енгізсеңіз, бұрынғы аккаунт ашылады.
           </p>
           </form>
         </section>

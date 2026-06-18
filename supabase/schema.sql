@@ -79,6 +79,7 @@ create table if not exists public.practice_results (
 -- Индекстер
 create index if not exists idx_cabinet_members_user on public.cabinet_members(user_id);
 create index if not exists idx_cabinet_members_cabinet on public.cabinet_members(cabinet_id);
+create index if not exists idx_wordroom_users_login on public.wordroom_users(full_name, pin_code);
 create index if not exists idx_topics_cabinet on public.topics(cabinet_id);
 create index if not exists idx_words_topic on public.words(topic_id);
 create index if not exists idx_practice_results_topic on public.practice_results(topic_id);

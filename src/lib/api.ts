@@ -21,6 +21,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   // Users
+  // Same full name + 4-digit code returns the existing account.
   createUser: (fullName: string, accessCode: string) =>
     request<{ user: User }>("/api/users", {
       method: "POST",

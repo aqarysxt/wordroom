@@ -3,7 +3,7 @@ import { getServiceClient } from "@/lib/supabaseServer";
 
 export const dynamic = "force-dynamic";
 
-// POST /api/users  — жаңа қолданушы құру
+// POST /api/users — аты мен 4 сандық код бойынша кіру немесе жаңа қолданушы құру
 export async function POST(req: Request) {
   try {
     const { fullName, accessCode } = await req.json();
@@ -15,10 +15,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "4 сандық кодты дұрыс енгізіңіз." }, { status: 400 });
     }
 
+    const cleanFullName = fullName.trim();
     const supabase = getServiceClient();
+
+    const { data: existingUser, error: findError } = await supabase
+      .from("wordroom_users")
+      .select("id, full_name, created_at")
+      .eq("full_name", cleanFullName)
+      .eq("pin_code", accessCode)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (findError) throw findError;
+
+    if (existingUser) {
+      return NextResponse.json({ user: existingUser });
+    }
+
     const { data, error } = await supabase
       .from("wordroom_users")
-      .insert({ full_name: fullName.trim(), pin_code: accessCode })
+      .insert({ full_name: cleanFullName, pin_code: accessCode })
       .select("id, full_name, created_at")
       .single();
 
