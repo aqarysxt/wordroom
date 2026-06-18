@@ -24,6 +24,8 @@ interface AdminUser {
   cabinet_count: number;
   owned_cabinet_count: number;
   practice_count: number;
+  is_blocked: boolean;
+  is_protected: boolean;
 }
 
 interface AdminCabinet {
@@ -155,6 +157,7 @@ export default function AdminPage() {
   const [cleanupConfirm, setCleanupConfirm] = useState("");
   const [cleanupPreview, setCleanupPreview] = useState<CleanupPreview | null>(null);
   const [cleanupMessage, setCleanupMessage] = useState("");
+  const [userActionLoading, setUserActionLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   async function loadOverview() {
@@ -227,6 +230,84 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : "User cleanup орындалмады.");
     } finally {
       setCleanupLoading(false);
+    }
+  }
+
+  async function handleRenameUser(user: AdminUser) {
+    const nextName = window.prompt("Жаңа аты-жөнін енгізіңіз", user.full_name);
+    if (!nextName || nextName.trim() === user.full_name || nextName.trim().length < 2) return;
+
+    setError("");
+    setUserActionLoading(user.id);
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accessCode: accessCode.trim(),
+          action: "rename",
+          fullName: nextName.trim(),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "User rename орындалмады.");
+      await loadOverview();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "User rename орындалмады.");
+    } finally {
+      setUserActionLoading(null);
+    }
+  }
+
+  async function handleBlockUser(user: AdminUser) {
+    if (!window.confirm(`${user.full_name} user-ін block жасау керек пе?`)) return;
+
+    setError("");
+    setUserActionLoading(user.id);
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accessCode: accessCode.trim(),
+          action: "block",
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "User block орындалмады.");
+      await loadOverview();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "User block орындалмады.");
+    } finally {
+      setUserActionLoading(null);
+    }
+  }
+
+  async function handleDeleteUser(user: AdminUser) {
+    const confirmText = window.prompt(
+      `Өшіру үшін user атын дәл жазыңыз: ${user.full_name}`,
+      "",
+    );
+    if (confirmText !== user.full_name) return;
+
+    setError("");
+    setUserActionLoading(user.id);
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accessCode: accessCode.trim(),
+          confirmText,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "User delete орындалмады.");
+      await loadOverview();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "User delete орындалмады.");
+    } finally {
+      setUserActionLoading(null);
     }
   }
 
@@ -356,18 +437,57 @@ export default function AdminPage() {
                     <Th>Owner</Th>
                     <Th>Practice</Th>
                     <Th>Құрылған</Th>
+                    <Th>Actions</Th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white/70">
                   {overview.users.map((user) => (
                     <tr key={user.id}>
-                      <Td>{user.full_name}</Td>
+                      <Td>
+                        <span>{user.full_name}</span>
+                        {user.is_blocked && (
+                          <span className="ml-2 rounded-full bg-coral-50 px-2 py-0.5 text-xs font-black text-coral-600">
+                            Blocked
+                          </span>
+                        )}
+                      </Td>
                       <Td><span className="font-mono">{user.pin_code || "—"}</span></Td>
                       <Td><ShortId value={user.id} /></Td>
                       <Td>{user.cabinet_count}</Td>
                       <Td>{user.owned_cabinet_count}</Td>
                       <Td>{user.practice_count}</Td>
                       <Td>{formatDate(user.created_at)}</Td>
+                      <Td>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="surface"
+                            onClick={() => handleRenameUser(user)}
+                            disabled={userActionLoading === user.id}
+                          >
+                            Rename
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={user.is_protected || userActionLoading === user.id}
+                          >
+                            Delete
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => handleBlockUser(user)}
+                            disabled={user.is_protected || user.is_blocked || userActionLoading === user.id}
+                          >
+                            Block
+                          </Button>
+                        </div>
+                      </Td>
                     </tr>
                   ))}
                 </tbody>

@@ -97,12 +97,16 @@ export async function POST(req: Request) {
     const usersById = new Map(users.map((user) => [user.id, user]));
     const cabinetsById = new Map(cabinets.map((cabinet) => [cabinet.id, cabinet]));
     const topicsById = new Map(topics.map((topic) => [topic.id, topic]));
+    const ownerIds = new Set(cabinets.map((cabinet) => cabinet.owner_id));
+    const adminFullName = (process.env.ADMIN_FULL_NAME || "aqarys").trim().toLowerCase();
 
     const usersWithStats = users.map((user) => ({
       ...user,
       cabinet_count: members.filter((member) => member.user_id === user.id).length,
       owned_cabinet_count: cabinets.filter((cabinet) => cabinet.owner_id === user.id).length,
       practice_count: practiceResults.filter((result) => result.user_id === user.id).length,
+      is_blocked: user.pin_code === null,
+      is_protected: ownerIds.has(user.id) || user.full_name.trim().toLowerCase() === adminFullName,
     }));
 
     const cabinetsWithStats = cabinets.map((cabinet) => {

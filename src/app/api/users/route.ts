@@ -33,6 +33,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ user: existingUser });
     }
 
+    const { data: blockedUser, error: blockedError } = await supabase
+      .from("wordroom_users")
+      .select("id")
+      .eq("full_name", cleanFullName)
+      .is("pin_code", null)
+      .limit(1)
+      .maybeSingle();
+
+    if (blockedError) throw blockedError;
+
+    if (blockedUser) {
+      return NextResponse.json({ error: "Бұл user бұғатталған." }, { status: 403 });
+    }
+
     const { data, error } = await supabase
       .from("wordroom_users")
       .insert({ full_name: cleanFullName, pin_code: accessCode })
