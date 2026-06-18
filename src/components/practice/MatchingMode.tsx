@@ -86,7 +86,7 @@ export function MatchingMode({ words, onFinish, onExit }: ModeProps) {
     const isWrong =
       wrongPair && ((side === "left" && wrongPair.left === id) || (side === "right" && wrongPair.right === id));
     return cn(
-      "w-full rounded-2xl border px-4 py-3 text-left text-sm font-semibold shadow-card transition",
+      "flex min-h-[3.75rem] w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold shadow-card transition",
       isMatched && "cursor-default border-mint-500/20 bg-mint-50 text-mint-600 opacity-60",
       !isMatched && isWrong && "border-coral-500/30 bg-coral-50 text-coral-600",
       !isMatched && !isWrong && selected && "border-brand-500 bg-brand-50 text-brand-700",
@@ -114,12 +114,9 @@ export function MatchingMode({ words, onFinish, onExit }: ModeProps) {
               aria-disabled={matched.has(item.id)}
               onClick={() => pickLeft(item.id)}
               onKeyDown={(e) => handleLeftKeyDown(e, item.id)}
-              className={cn(
-                cellClass(item.id, selectedLeft === item.id, "left"),
-                "flex items-center justify-between gap-2",
-              )}
+              className={cellClass(item.id, selectedLeft === item.id, "left")}
             >
-              <span>{item.text}</span>
+              <span className="min-w-0 leading-5">{item.text}</span>
               <SpeakButton text={item.text} className="h-8 w-8" />
             </div>
           ))}
@@ -133,7 +130,8 @@ export function MatchingMode({ words, onFinish, onExit }: ModeProps) {
               onClick={() => pickRight(item.id)}
               className={cellClass(item.id, selectedRight === item.id, "right")}
             >
-              {item.text}
+              <span className="min-w-0 leading-5">{item.text}</span>
+              <span className="h-8 w-8 shrink-0" aria-hidden="true" />
             </button>
           ))}
         </div>
