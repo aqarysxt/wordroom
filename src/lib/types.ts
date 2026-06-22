@@ -18,8 +18,6 @@ export interface Cabinet {
   code: string;
   owner_id: string;
   created_at: string;
-  /** Computed in API responses. */
-  member_count?: number;
 }
 
 export interface Topic {

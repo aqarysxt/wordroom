@@ -158,12 +158,9 @@ export default function CabinetPage() {
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <span className="text-sm font-semibold text-white/70">Кабинет коды</span>
                 <span className="rounded-full bg-white/60 px-4 py-2 font-mono text-sm font-bold tracking-widest text-ink-900">
-                {cabinet.code}
-              </span>
-              <CopyButton value={cabinet.code} />
-                <span className="rounded-full bg-white/85 px-4 py-2 text-sm font-black text-ink-900">
-                  {cabinet.member_count ?? 0} адам
+                  {cabinet.code}
                 </span>
+                <CopyButton value={cabinet.code} />
               </div>
             </div>
             <div className="hidden lg:block">

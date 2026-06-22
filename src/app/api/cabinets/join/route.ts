@@ -44,14 +44,7 @@ export async function POST(req: Request) {
       if (insertError) throw insertError;
     }
 
-    const { count, error: countError } = await supabase
-      .from("cabinet_members")
-      .select("*", { count: "exact", head: true })
-      .eq("cabinet_id", cabinet.id);
-
-    if (countError) throw countError;
-
-    return NextResponse.json({ cabinet: { ...cabinet, member_count: count ?? 0 } });
+    return NextResponse.json({ cabinet });
   } catch (err) {
     console.error("POST /api/cabinets/join", err);
     return NextResponse.json({ error: "Кабинетке кіру мүмкін болмады." }, { status: 500 });
