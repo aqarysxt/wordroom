@@ -3,6 +3,17 @@ import { getServiceClient } from "@/lib/supabaseServer";
 
 export const dynamic = "force-dynamic";
 
+function normalizeInviteCode(input: string) {
+  const raw = input.trim();
+  const inviteMatch = raw.match(/\/invite\/([^/?#]+)/i);
+  const code = inviteMatch ? inviteMatch[1] : raw;
+  try {
+    return decodeURIComponent(code).trim().toUpperCase();
+  } catch {
+    return code.trim().toUpperCase();
+  }
+}
+
 // POST /api/cabinets/join  — код арқылы кабинетке кіру
 export async function POST(req: Request) {
   try {
@@ -16,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     const supabase = getServiceClient();
-    const normalized = code.trim().toUpperCase();
+    const normalized = normalizeInviteCode(code);
 
     const { data: cabinet, error } = await supabase
       .from("cabinets")

@@ -69,6 +69,7 @@ export default function CabinetPage() {
   const [user, setUser] = useState<StoredUser | null>(null);
   const [cabinet, setCabinet] = useState<Cabinet | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [origin, setOrigin] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
@@ -94,6 +95,7 @@ export default function CabinetPage() {
   }, [cabinetId]);
 
   useEffect(() => {
+    setOrigin(window.location.origin);
     const current = getCurrentUser();
     if (!current) {
       router.replace("/");
@@ -143,6 +145,8 @@ export default function CabinetPage() {
     );
   }
 
+  const inviteLink = origin && cabinet ? `${origin}/invite/${encodeURIComponent(cabinet.code)}` : "";
+
   return (
     <div className="min-h-screen pb-10">
       <TopBar user={user} backHref="/dashboard" backLabel="Басты бет" />
@@ -161,6 +165,23 @@ export default function CabinetPage() {
                   {cabinet.code}
                 </span>
                 <CopyButton value={cabinet.code} />
+              </div>
+              <div className="mt-5 rounded-[1.75rem] border border-white/30 bg-white/15 p-4 backdrop-blur">
+                <p className="text-sm font-semibold text-white/70">Шақыру сілтемесі</p>
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <p className="min-w-0 flex-1 truncate rounded-2xl bg-white/60 px-4 py-2 font-mono text-xs font-bold text-ink-900">
+                    {inviteLink || "..."}
+                  </p>
+                  {inviteLink && (
+                    <CopyButton
+                      value={inviteLink}
+                      label="⧉ Link"
+                      copiedLabel="✓ Көшірілді"
+                      ariaLabel="Шақыру сілтемесін көшіру"
+                      className="justify-center"
+                    />
+                  )}
+                </div>
               </div>
             </div>
             <div className="hidden lg:block">

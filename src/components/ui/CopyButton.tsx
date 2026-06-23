@@ -3,7 +3,19 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-export function CopyButton({ value, className }: { value: string; className?: string }) {
+export function CopyButton({
+  value,
+  className,
+  label = "⧉ Көшіру",
+  copiedLabel = "✓ Көшірілді",
+  ariaLabel = "Көшіру",
+}: {
+  value: string;
+  className?: string;
+  label?: string;
+  copiedLabel?: string;
+  ariaLabel?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -30,9 +42,9 @@ export function CopyButton({ value, className }: { value: string; className?: st
         "inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3 py-1.5 text-sm font-semibold text-ink-900 transition hover:bg-white/80",
         className,
       )}
-      aria-label="Кодты көшіру"
+      aria-label={ariaLabel}
     >
-      {copied ? "✓ Көшірілді" : "⧉ Көшіру"}
+      {copied ? copiedLabel : label}
     </button>
   );
 }

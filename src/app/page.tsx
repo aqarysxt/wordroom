@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { getCurrentUser, saveCurrentUser } from "@/lib/currentUser";
+import { getCurrentUser, getPendingInvite, saveCurrentUser } from "@/lib/currentUser";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Alert } from "@/components/ui/Alert";
@@ -15,13 +15,16 @@ export default function LandingPage() {
   const [fullName, setFullName] = useState("");
   const [accessCode, setAccessCode] = useState("");
   const [confirmCode, setConfirmCode] = useState("");
+  const [pendingInvite, setPendingInvite] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   // localStorage-те қолданушы болса — бірден dashboard-қа
   useEffect(() => {
+    const inviteCode = getPendingInvite();
+    setPendingInvite(inviteCode);
     if (getCurrentUser()) {
-      router.replace("/dashboard");
+      router.replace(inviteCode ? `/invite/${encodeURIComponent(inviteCode)}` : "/dashboard");
     } else {
       setChecking(false);
     }
@@ -48,7 +51,8 @@ export default function LandingPage() {
     try {
       const { user } = await api.createUser(fullName.trim(), accessCode);
       saveCurrentUser(user);
-      router.push("/dashboard");
+      const inviteCode = getPendingInvite();
+      router.push(inviteCode ? `/invite/${encodeURIComponent(inviteCode)}` : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Қате болды.");
       setSubmitting(false);
@@ -101,6 +105,11 @@ export default function LandingPage() {
 
           <form onSubmit={handleSubmit} className="app-panel animate-pop-in space-y-4 overflow-hidden p-6">
             <div className="h-1.5 rounded-full gradient-bloody" />
+          {pendingInvite && (
+            <Alert tone="info">
+              Шақыру сілтемесі сақталды. Кіргеннен кейін кабинетке автоматты қосыласыз.
+            </Alert>
+          )}
           <Input
             label="Аты-жөніңіз"
             name="fullName"

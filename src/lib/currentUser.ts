@@ -3,6 +3,7 @@
 import type { User } from "./types";
 
 const STORAGE_KEY = "wordroom_user";
+const PENDING_INVITE_KEY = "wordroom_pending_invite";
 
 export interface StoredUser {
   id: string;
@@ -31,4 +32,22 @@ export function getCurrentUser(): StoredUser | null {
 export function clearCurrentUser(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
+}
+
+export function savePendingInvite(code: string): void {
+  if (typeof window === "undefined") return;
+  const normalized = code.trim().toUpperCase();
+  if (!normalized) return;
+  localStorage.setItem(PENDING_INVITE_KEY, normalized);
+}
+
+export function getPendingInvite(): string | null {
+  if (typeof window === "undefined") return null;
+  const code = localStorage.getItem(PENDING_INVITE_KEY)?.trim().toUpperCase();
+  return code || null;
+}
+
+export function clearPendingInvite(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(PENDING_INVITE_KEY);
 }
